@@ -173,19 +173,22 @@ class aug:
         with open(txtPath, 'w') as f:
             f.writelines([line + os.linesep for line in lableInfo])
 
-    def AddWeather(self):
+    def AddWeather(self,ratio=1.0):
         '''
         AddWeather:对文件夹中的图片进行天气增强 1:1:1:1=雨天:雪天:日光:阴影
         '''
         flag = '000'
         Filelist = self.__GetFile(self.__ImagePath)
         for filename in tqdm(Filelist):
+            random_float = random.uniform(0, 1)
+            if ratio < random_float:
+                continue
             name_only = os.path.splitext(os.path.basename(filename))[0]
             image = cv2.imread(self.__ImagePath + '/' + filename)
             height, width, _ = image.shape
             image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
             random_number = random.randint(0, 3)
-            # random_number=3
+            # random_number=0
             if random_number == 0:
                 transform = A.Compose(
                     [A.RandomRain(brightness_coefficient=0.9, drop_width=1, blur_value=5, p=1)],
@@ -354,5 +357,6 @@ class aug:
             cv2.imwrite(self.__OutImP + '/' + name_only + flag + '.tif', padded_image)
             lableInfo = self.__GetBboxResize(self.__LablePath + '/' + name_only + '.txt', scale, left, top)
             self.__lable2txt(lableInfo, self.__OutLaP + '/' + name_only + flag + '.txt')
+
 
 
